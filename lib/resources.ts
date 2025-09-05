@@ -1,8 +1,3 @@
-// lib/resources.ts
-// Roteador de recursos por assunto: devolve videoaulas e materiais
-// específicos com base no título da tarefa. Se nada casar, cai em
-// buscas direcionadas (fallback).
-
 export type StudyLink = { label: string; url: string };
 export type ResourceBundle = { videos: StudyLink[]; materials: StudyLink[] };
 

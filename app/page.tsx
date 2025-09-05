@@ -6,12 +6,6 @@ import { TaskItem } from "../components/task-item";
 import { AddEditTaskDialog } from "../components/add-edit-task";
 import { loadTasks, saveTasks, type StoredTask, type ResourceBundle } from "../lib/storage";
 
-/**
- * SEED – 11 semanas (5 dias/semana). Começo sugerido: 08/09 até 22/11.
- * Linha editorial: conteúdos mais frequentes em FUVEST/ENEM,
- * cobrindo Matemática, Português/Literatura, Física, Química, Biologia,
- * História, Geografia, Filosofia/Sociologia, Redação + revisões/provas.
- */
 const SEED: StoredTask[] = [
   // -------- Semana 1 --------
   { id: "W1D1", title: "Matemática — Conjuntos, Intervalos e Operações", completed: false },
@@ -153,7 +147,6 @@ export default function Page() {
           ? {
               ...t,
               title,
-              // se vier resources, substitui; senão mantém o que já tinha
               resources: resources ?? t.resources,
             }
           : t

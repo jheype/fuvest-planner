@@ -77,30 +77,30 @@ export async function POST(req: NextRequest) {
         : `INTERVALO: ${nowYear - 15}–${nowYear}.`;
 
     const user = `
-TÓPICO: ${topic}
-QUANTIDADE: ${num}
-${prefs}
-${timeWindow}
+    TÓPICO: ${topic}
+    QUANTIDADE: ${num}
+    ${prefs}
+    ${timeWindow}
 
-Formato de saída (JSON object):
-{
-  "questions": [
+    Formato de saída (JSON object):
     {
-      "statement": "… (máx ~110 palavras)",
-      "options": ["A) …", "B) …", "C) …", "D) …"],
-      "correct": 2,
-      "source": "(FUVEST 2021 - 1ª fase)",
-      "link": "https://…/prova.pdf",
-      "approximate": false
+      "questions": [
+        {
+          "statement": "… (máx ~110 palavras)",
+          "options": ["A) …", "B) …", "C) …", "D) …"],
+          "correct": 2,
+          "source": "(FUVEST 2021 - 1ª fase)",
+          "link": "https://…/prova.pdf",
+          "approximate": false
+        }
+      ]
     }
-  ]
-}
-`.trim();
+    `.trim();
 
     const completion = await client.chat.completions.create({
-      model: "gpt-4o",            // mais assertivo para memória de provas
-      temperature: 0,             // respostas estáveis e factuais
-      response_format: { type: "json_object" }, // força JSON
+      model: "gpt-4o",            
+      temperature: 0,             
+      response_format: { type: "json_object" }, 
       max_tokens: 1600,
       messages: [
         { role: "system", content: system },
@@ -110,7 +110,6 @@ Formato de saída (JSON object):
 
     const content = completion.choices[0]?.message?.content?.trim() || "{}";
 
-    // Parse seguro
     let parsedJSON: unknown;
     try {
       parsedJSON = JSON.parse(content);
@@ -123,7 +122,6 @@ Formato de saída (JSON object):
       .object({ questions: z.array(QuestionSchema) })
       .parse(parsedJSON).questions;
 
-    // saneamento
     const questions: Question[] = arr.slice(0, num).map((q, idx) => ({
       ...q,
       statement: capWords(q.statement),
@@ -137,7 +135,6 @@ Formato de saída (JSON object):
     return NextResponse.json({ questions });
   } catch (err: any) {
     console.error("generate-questions error:", err?.message || err);
-    // Fallback enxuto, mas agora devolvendo 'num' itens para não parecer bug
     const fallback = Array.from({ length: 1 }).map((_, i) => ({
       statement: `(${new Date().getFullYear()}) Questão de estilo FUVEST/ENEM sobre o tema solicitado.`,
       options: ["A) Alternativa 1", "B) Alternativa 2", "C) Alternativa 3", "D) Alternativa 4"],

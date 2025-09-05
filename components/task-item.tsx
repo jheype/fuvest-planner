@@ -17,7 +17,7 @@ export function TaskItem({
   task: { id: string; title: string; completed: boolean; resources?: ResourceBundle };
   onToggleAction: (id: string, next: boolean) => Promise<void>;
   onDeleteAction: (id: string) => Promise<void>;
-  onEditAction: (id: string) => void; // abre o dialog de edição no pai
+  onEditAction: (id: string) => void; 
 }) {
   const [completed, setCompleted] = useState(task.completed);
   const [current, setCurrent] = useState<Step>("video");
@@ -29,7 +29,6 @@ export function TaskItem({
     return { subject: subject?.trim() ?? "Tarefa", detail: rest.join("—").trim() || task.title };
   }, [task.title]);
 
-  // Preferimos resources da tarefa; se não houver, usamos fallback por regras
   const RES = useMemo<ResourceBundle>(() => {
     if (task.resources?.videos?.length || task.resources?.materials?.length) {
       return {
