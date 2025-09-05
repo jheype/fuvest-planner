@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     `.trim();
 
     const completion = await client.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-5",
       temperature: 0,
       response_format: { type: "json_object" },
       max_tokens: 1200,

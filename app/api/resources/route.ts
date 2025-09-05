@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     `.trim();
 
     const out = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-mini",
       temperature: 0.2,
       response_format: { type: "json_object" },
       messages: [
