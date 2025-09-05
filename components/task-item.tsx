@@ -84,14 +84,14 @@ export function TaskItem({
 
           <button
             onClick={() => onEditAction(task.id)}
-            className="rounded-md p-2 text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+            className="rounded-md p-2 text-zinc-400 hover:bg-white/5 hover:text-zinc-200 cursor-pointer"
             title="Editar"
           >
             <Pencil className="h-4 w-4" />
           </button>
           <button
             onClick={doDelete}
-            className="rounded-md p-2 text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+            className="rounded-md p-2 text-zinc-400 hover:bg-white/5 hover:text-zinc-200 cursor-pointer"
             title="Excluir"
           >
             <Trash2 className="h-4 w-4" />
@@ -139,7 +139,7 @@ export function TaskItem({
             </ul>
             <button
               onClick={() => { setWatched(true); setCurrent("material"); }}
-              className="mt-4 rounded-md bg-zinc-800 px-4 py-2 text-sm text-zinc-100 ring-1 ring-white/10 hover:bg-zinc-700 transition"
+              className="mt-4 rounded-md bg-zinc-800 px-4 py-2 text-sm text-zinc-100 ring-1 ring-white/10 hover:bg-zinc-700 transition-all cursor-pointer"
             >
               ✔️ Marcar 1 videoaula assistida
             </button>

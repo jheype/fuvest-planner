@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, PenSquare } from "lucide-react";
 import { TaskItem } from "../components/task-item";
 import { AddEditTaskDialog } from "../components/add-edit-task";
+import { EssayDialog } from "../components/essay-dialog";
 import { loadTasks, saveTasks, type StoredTask, type ResourceBundle } from "../lib/storage";
 
 const SEED: StoredTask[] = [
@@ -92,6 +93,7 @@ export default function Page() {
   // dialogs
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [essayOpen, setEssayOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -161,20 +163,30 @@ export default function Page() {
     <main className="min-h-screen bg-[#0D0F12] text-zinc-100">
       <div className="mx-auto max-w-5xl px-6 py-10">
         <header className="mb-8">
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h1 className="text-4xl font-extrabold tracking-tight">Fuvest Planner</h1>
               <p className="mt-2 text-zinc-400">
-                Fluxo: 🎥 Videoaulas → 📘 Material → ❓ Questões (ENEM/FUVEST).
+                Fluxo: 🎥 Videoaulas → 📘 Material → ❓ Questões (ENEM/FUVEST) + ✍️ Redação
               </p>
             </div>
-            <button
-              onClick={() => setAddOpen(true)}
-              className="inline-flex items-center gap-2 rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
-            >
-              <Plus className="h-4 w-4" />
-              Adicionar assunto
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEssayOpen(true)}
+                className="inline-flex items-center gap-2 rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-emerald-950 hover:bg-emerald-400 cursor-pointer transition-all"
+                title="Abrir modal de Redação"
+              >
+                <PenSquare className="h-4 w-4" />
+                Redação
+              </button>
+              <button
+                onClick={() => setAddOpen(true)}
+                className="inline-flex items-center gap-2 rounded-md bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-200 cursor-pointer transition-all"
+              >
+                <Plus className="h-4 w-4" />
+                Adicionar assunto
+              </button>
+            </div>
           </div>
         </header>
 
@@ -232,6 +244,9 @@ export default function Page() {
         initialTitle={editingTask?.title}
         onSubmitAction={editSubmit}
       />
+
+      {/* Dialog: redação */}
+      <EssayDialog open={essayOpen} onOpenChangeAction={setEssayOpen} />
     </main>
   );
 }
