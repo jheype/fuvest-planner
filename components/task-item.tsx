@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PlayCircle, BookOpen, HelpCircle, CheckCircle2, Shield, Pencil, Trash2, Undo2 } from "lucide-react";
+import { PlayCircle, BookOpen, HelpCircle, Shield, Pencil, Trash2, Undo2 } from "lucide-react";
 import { QuizDialog } from "./quiz-dialog";
 import { getResources } from "../lib/resources";
 import type { ResourceBundle } from "../lib/storage";
@@ -17,7 +17,7 @@ export function TaskItem({
   task: { id: string; title: string; completed: boolean; resources?: ResourceBundle };
   onToggleAction: (id: string, next: boolean) => Promise<void>;
   onDeleteAction: (id: string) => Promise<void>;
-  onEditAction: (id: string) => void; 
+  onEditAction: (id: string) => void;
 }) {
   const [completed, setCompleted] = useState(task.completed);
   const [current, setCurrent] = useState<Step>("video");
@@ -116,7 +116,7 @@ export function TaskItem({
         />
       </div>
 
-      {/* Painéis */}
+      {/* Conteúdos */}
       <div className="mt-5 grid gap-4">
         {current === "video" && (
           <div className="rounded-lg border border-white/10 bg-[#0F1216] p-4">
@@ -165,7 +165,6 @@ export function TaskItem({
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-zinc-500">Dica: veja exemplos resolvidos antes do quiz.</p>
           </div>
         )}
       </div>

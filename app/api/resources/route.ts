@@ -15,40 +15,37 @@ const BundleSchema = z.object({
   materials: z.array(LinkSchema).min(1),
 });
 
+function getErrorMessage(err: unknown): string {
+  if (typeof err === "string") return err;
+  if (err && typeof err === "object" && "message" in err) {
+    const m = (err as { message?: unknown }).message;
+    if (typeof m === "string") return m;
+  }
+  return "Unknown error";
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { title } = Body.parse(await req.json());
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      const fb = getResources(title);
-      return NextResponse.json({ resources: fb });
+      return NextResponse.json({ resources: getResources(title) });
     }
 
     const client = new OpenAI({ apiKey });
 
     const system = [
-      "Você sugere recursos de estudo para vestibulares (FUVEST/ENEM).",
-      "Retorne APENAS JSON (json_object) com arrays 'videos' e 'materials'.",
-      "Cada item tem { label, url }. Prefira links confiáveis:",
-      "- Vídeo: YouTube (aulas), canais respeitados.",
-      "- Material: Khan Academy, Brasil Escola, Mundo Educação, sites de universidades.",
-      "No label, descreva brevemente o conteúdo.",
-      "Forneça de 2 a 3 vídeos e 2 a 3 materiais.",
+      "Sugira recursos de estudo para vestibulares (FUVEST/ENEM).",
+      "Responda APENAS JSON (json_object) com arrays 'videos' e 'materials'.",
+      "Cada item: { label, url }. Prefira YouTube (aulas), Khan Academy, Brasil Escola.",
+      "2–3 vídeos e 2–3 materiais.",
     ].join(" ");
 
     const user = `
-        TÍTULO/TEMA: "${title}"
-
-        Formato EXATO (json_object):
-        {
-        "videos": [
-            { "label": "Função quadrática: vértice e concavidade — YouTube", "url": "https://..." }
-        ],
-        "materials": [
-            { "label": "Khan Academy — Quadráticas", "url": "https://..." }
-        ]
-        }
+      TÍTULO: "${title}"
+      Formato JSON:
+      { "videos": [ { "label": "...", "url": "..." } ], "materials": [ { "label": "...", "url": "..." } ] }
     `.trim();
 
     const out = await client.chat.completions.create({
@@ -59,7 +56,7 @@ export async function POST(req: NextRequest) {
         { role: "system", content: system },
         { role: "user", content: user },
       ],
-      max_tokens: 700,
+      max_tokens: 600,
     });
 
     const content = out.choices[0]?.message?.content?.trim() || "{}";
@@ -67,26 +64,24 @@ export async function POST(req: NextRequest) {
     try {
       json = JSON.parse(content);
     } catch {
-      const fb = getResources(title);
-      return NextResponse.json({ resources: fb });
+      return NextResponse.json({ resources: getResources(title) });
     }
 
     const parsed = BundleSchema.safeParse(json);
     if (!parsed.success) {
-      const fb = getResources(title);
-      return NextResponse.json({ resources: fb });
+      return NextResponse.json({ resources: getResources(title) });
     }
 
     const unique = (arr: StudyLink[]) => {
       const seen = new Set<string>();
-      const out: StudyLink[] = [];
+      const outArr: StudyLink[] = [];
       for (const v of arr) {
         if (!seen.has(v.url)) {
-          out.push(v);
+          outArr.push(v);
           seen.add(v.url);
         }
       }
-      return out.slice(0, 3);
+      return outArr.slice(0, 3);
     };
 
     const resources: ResourceBundle = {
@@ -95,10 +90,10 @@ export async function POST(req: NextRequest) {
     };
 
     return NextResponse.json({ resources });
-  } catch (e: any) {
-    const raw = await req.json().catch(() => ({ title: "" }));
-    const title = typeof raw?.title === "string" ? raw.title : "tópico";
-    const fb = getResources(title);
-    return NextResponse.json({ resources: fb, error: e?.message ?? "fallback" }, { status: 200 });
+  } catch (err: unknown) {
+    return NextResponse.json(
+      { resources: getResources("fallback"), error: getErrorMessage(err) },
+      { status: 200 }
+    );
   }
 }
