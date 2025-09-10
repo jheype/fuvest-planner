@@ -5,7 +5,7 @@ import { z } from "zod";
 // ---------- Schemas ----------
 const Body = z.object({
   topic: z.string().min(3),
-  num: z.number().min(3).max(8).default(5),
+  num: z.number().min(3).max(10).default(5),
   sourceBias: z.array(z.enum(["FUVEST", "ENEM"])).optional(),
   years: z
     .object({ from: z.number().optional(), to: z.number().optional() })
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     `.trim();
 
     const completion = await client.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       temperature: 0,
       response_format: { type: "json_object" },
       max_tokens: 1200,

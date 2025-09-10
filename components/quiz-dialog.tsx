@@ -42,7 +42,7 @@ export function QuizDialog({
       const res = await fetch("/api/generate-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, num: 5 }),
+        body: JSON.stringify({ topic, num: 10 }),
       });
       const data = res.ok ? await res.json() : null;
       if (data?.questions?.length) {

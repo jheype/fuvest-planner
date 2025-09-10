@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     `.trim();
 
     const graded = await client.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       temperature: 0.2,
       response_format: { type: "json_object" },
       messages: [

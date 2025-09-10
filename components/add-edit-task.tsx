@@ -12,34 +12,43 @@ type Props = {
   onOpenChangeAction: (o: boolean) => void;
 
   variant: "add" | "edit";
-  initialTitle?: string;
+  initialSubject?: string;
+  initialTopic?: string;
 
-  onSubmitAction: (data: { title: string; resources?: ResourceBundle }) => Promise<void> | void;
+  onSubmitAction: (data: {
+    subjectName: string;
+    topicTitle: string;
+    resources?: ResourceBundle;
+  }) => Promise<void> | void;
 };
 
 export function AddEditTaskDialog({
   open,
   onOpenChangeAction,
   variant,
-  initialTitle,
+  initialSubject,
+  initialTopic,
   onSubmitAction,
 }: Props) {
-  const [title, setTitle] = React.useState(initialTitle ?? "");
+  const [subjectName, setSubjectName] = React.useState(initialSubject ?? "");
+  const [topicTitle, setTopicTitle] = React.useState(initialTopic ?? "");
   const [loading, setLoading] = React.useState(false);
   const [useAI, setUseAI] = React.useState(true);
   const isEdit = variant === "edit";
 
   React.useEffect(() => {
     if (open) {
-      setTitle(initialTitle ?? "");
+      setSubjectName(initialSubject ?? "");
+      setTopicTitle(initialTopic ?? "");
       setUseAI(true);
       setLoading(false);
     }
-  }, [open, initialTitle, variant]);
+  }, [open, initialSubject, initialTopic, variant]);
+
+  const canSubmit = subjectName.trim().length > 0 && topicTitle.trim().length > 0;
 
   const submit = async () => {
-    const t = title.trim();
-    if (!t) return;
+    if (!canSubmit) return;
     setLoading(true);
     try {
       let resources: ResourceBundle | undefined = undefined;
@@ -47,12 +56,12 @@ export function AddEditTaskDialog({
         const res = await fetch("/api/resources", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: t }),
+          body: JSON.stringify({ title: `${subjectName} — ${topicTitle}` }),
         });
         const data = await res.json();
         if (data?.resources) resources = data.resources as ResourceBundle;
       }
-      await onSubmitAction({ title: t, resources });
+      await onSubmitAction({ subjectName: subjectName.trim(), topicTitle: topicTitle.trim(), resources });
       onOpenChangeAction(false);
     } catch (e) {
       console.error(e);
@@ -72,12 +81,23 @@ export function AddEditTaskDialog({
 
         <div className="grid gap-3">
           <div className="grid gap-1.5">
-            <Label htmlFor="title">Matéria / assunto</Label>
+            <Label htmlFor="subject">Matéria</Label>
             <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder='Ex.: "Matemática — Função Quadrática (vértice e concavidade)"'
+              id="subject"
+              value={subjectName}
+              onChange={(e) => setSubjectName(e.target.value)}
+              placeholder='Ex.: "Matemática", "Biologia", "História"'
+              className="bg-[#12151A] ring-1 ring-white/10"
+            />
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="topic">Assunto</Label>
+            <Input
+              id="topic"
+              value={topicTitle}
+              onChange={(e) => setTopicTitle(e.target.value)}
+              placeholder='Ex.: "Função Quadrática (vértice e concavidade)"'
               className="bg-[#12151A] ring-1 ring-white/10"
             />
           </div>
@@ -101,19 +121,13 @@ export function AddEditTaskDialog({
             </Button>
             <Button
               onClick={submit}
-              disabled={loading || !title.trim()}
+              disabled={loading || !canSubmit}
               className="rounded-md bg-zinc-100 text-zinc-900 hover:bg-zinc-200"
               type="button"
             >
               {loading ? (isEdit ? "Salvando..." : "Adicionando...") : isEdit ? "Salvar" : "Adicionar"}
             </Button>
           </div>
-
-          {!useAI && (
-            <p className="text-xs text-zinc-500">
-              Dica: você pode ativar a IA depois para preencher recursos automaticamente.
-            </p>
-          )}
         </div>
       </DialogContent>
     </Dialog>
